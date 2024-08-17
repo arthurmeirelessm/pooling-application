@@ -1,22 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'> -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Upload de Arquivo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #070707 0%, #f1c4fa 100%);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            box-sizing: border-box;
+            background-color: #f7f9fc;
+            color: #007bff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            background-color: #eef3fb;
+        }
+
+        button {
+            background-color: #0f0f0f;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ff8b7f;
+        }
+
+        #uploadStatus {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+
+    .notification {
+        display: none;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        text-align: center;
+        max-width: 100%;
+        position: relative;
+    }
+
+    .notification.success {
+        background-color: #28a745;
+    }
+
+    .notification.error {
+        background-color: #dc3545;
+    }
+
+    .notification .icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+    }
+
+    .notification .message {
+        margin-left: 40px;
+    }
+    </style>
 </head>
 
 <body>
-    <div>
+    <div class="container">
+        <h2>Upload de Arquivo</h2>
         <input type="file" id="fileToUpload" />
-        <button onclick="uploadMedia()"> upload</button>
+        <button onclick="uploadMedia()">Upload</button>
+        <div id="uploadStatus" class="notification"></div>
     </div>
-    <script src="config.js"></script> <!-- Verifique se o caminho está correto -->
+    <script src="config.js"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1672.0.min.js"></script>
-    <script src='main.js'></script>
+    <script src="main.js"></script>
 </body>
 
 </html>
