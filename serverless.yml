@@ -21,6 +21,7 @@ package:
     - .env
     - .gitignore
     - env/**
+    - src/frontend/**
 
   include:
     - src/
@@ -42,9 +43,8 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: false
-  
 
-
+ 
 
 
 

@@ -42,7 +42,7 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
                 PartNumber: partNumber,
                 UploadId: uploadId
             }).promise().then(part => {
-                parts[partNumber - 1] = { ETag: part.ETag, PartNumber: partNumber }; // Armazena a parte na posição correta
+                parts[partNumber - 1] = { ETag: part.ETag, PartNumber: partNumber };
                 console.log(`Parte ${partNumber} enviada com sucesso:`, part);
             }).catch(err => {
                 console.error(`Erro ao enviar a parte ${partNumber}:`, err);
@@ -52,26 +52,15 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
             uploadPromises.push(uploadPromise);
         }
 
-        // Espera todos os uploads de partes serem concluídos
         await Promise.all(uploadPromises);
 
-        // Completa o upload multipart com as partes na ordem correta
         await s3.completeMultipartUpload({
             Bucket: bucketName,
             Key: uploadKey,
-            MultipartUpload: { Parts: parts.filter(Boolean) }, // Remove elementos falsy se houver falhas
+            MultipartUpload: { Parts: parts.filter(Boolean) }, 
             UploadId: uploadId
         }).promise();
-        
-        await fetch('https://sis2f5ly6b.execute-api.us-east-1.amazonaws.com/dev/createstatus', {
-            method: 'POST', 
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "id": "43543543sdsdd"
-            })
-        });
+
         const statusDiv = document.getElementById("uploadStatus");
         statusDiv.className = "notification success";
         statusDiv.innerHTML = '<span class="icon">&#10003;</span><span class="message">Upload finalizado com sucesso!</span>';
@@ -87,7 +76,6 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
 }
 
 
-// Função para lidar com o evento de upload do arquivo
 async function uploadMedia() {
     try {
         const fileInput = document.getElementById("fileToUpload");
@@ -106,7 +94,6 @@ async function uploadMedia() {
     }
 }
 
-// Função para ler o arquivo como ArrayBuffer
 function getFile(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -117,16 +104,13 @@ function getFile(file) {
 }
 
 function generateUUID() {
-    // Gera um número aleatório de 32 bits
-    const crypto = window.crypto || window.msCrypto; // para compatibilidade com diferentes navegadores
+    const crypto = window.crypto || window.msCrypto; 
     const array = new Uint8Array(16);
     crypto.getRandomValues(array);
 
-    // Modifica os bytes conforme o padrão UUID v4
-    array[6] = (array[6] & 0x0f) | 0x40; // define a versão (4)
-    array[8] = (array[8] & 0x3f) | 0x80; // define o variante (10)
+    array[6] = (array[6] & 0x0f) | 0x40; 
+    array[8] = (array[8] & 0x3f) | 0x80; 
 
-    // Converte os bytes para o formato UUID
     const hexArray = Array.from(array, byte => byte.toString(16).padStart(2, '0'));
     return [
         hexArray.slice(0, 4).join(''),

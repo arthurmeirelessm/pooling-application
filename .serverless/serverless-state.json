@@ -102,7 +102,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/poolingApplicationAPI/dev/1723862369633-2024-08-17T02:39:29.633Z/poolingApplicationAPI.zip"
+                "S3Key": "serverless/poolingApplicationAPI/dev/1723926250254-2024-08-17T20:24:10.254Z/poolingApplicationAPI.zip"
               },
               "Handler": "src/backend/apis/create_status/handler.lambda_handler",
               "Runtime": "python3.11",
@@ -118,14 +118,14 @@
               "CreateStatusLogGroup"
             ]
           },
-          "CreateStatusLambdaVersionzRDYByjDHQXjjOg4b2moxPIXXOYGSF3NDygWpPQusU": {
+          "CreateStatusLambdaVersionCrqxOWPCcm6qqc9wi68wcVVEXznFMeQWZLYF6J9U": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateStatusLambdaFunction"
               },
-              "CodeSha256": "eIZ9GefpolDewsSS8VxyPqilEq1FrOhbckb6X8ViT9Q="
+              "CodeSha256": "N/l7jNeW69TebIrBFctHCc8uHKrVhQfpFejeY9oqtS4="
             }
           },
           "ApiGatewayRestApi": {
@@ -246,7 +246,7 @@
               "CreateStatusLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1723862364487": {
+          "ApiGatewayDeployment1723926246684": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -309,7 +309,7 @@
           "CreateStatusLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateStatusLambdaVersionzRDYByjDHQXjjOg4b2moxPIXXOYGSF3NDygWpPQusU"
+              "Ref": "CreateStatusLambdaVersionCrqxOWPCcm6qqc9wi68wcVVEXznFMeQWZLYF6J9U"
             },
             "Export": {
               "Name": "sls-poolingApplicationAPI-dev-CreateStatusLambdaFunctionQualifiedArn"
@@ -465,7 +465,7 @@
         "timeout": 6,
         "runtime": "python3.11",
         "vpc": {},
-        "versionLogicalId": "CreateStatusLambdaVersionzRDYByjDHQXjjOg4b2moxPIXXOYGSF3NDygWpPQusU"
+        "versionLogicalId": "CreateStatusLambdaVersionCrqxOWPCcm6qqc9wi68wcVVEXznFMeQWZLYF6J9U"
       }
     },
     "configValidationMode": "warn",
@@ -486,14 +486,15 @@
           ".vscode/**",
           ".env",
           ".gitignore",
-          "env/**"
+          "env/**",
+          "src/frontend/**"
         ],
         "include": [
           "src/"
         ],
         "artifactsS3KeyDirname": "serverless/poolingApplicationAPI/dev/code-artifacts",
         "artifact": "C:\\pooling-application\\.serverless\\poolingApplicationAPI.zip",
-        "artifactDirectoryName": "serverless/poolingApplicationAPI/dev/1723862369633-2024-08-17T02:39:29.633Z"
+        "artifactDirectoryName": "serverless/poolingApplicationAPI/dev/1723926250254-2024-08-17T20:24:10.254Z"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
@@ -505,7 +506,7 @@
   },
   "package": {
     "individually": false,
-    "artifactDirectoryName": "serverless/poolingApplicationAPI/dev/1723862369633-2024-08-17T02:39:29.633Z",
+    "artifactDirectoryName": "serverless/poolingApplicationAPI/dev/1723926250254-2024-08-17T20:24:10.254Z",
     "artifact": "poolingApplicationAPI.zip"
   }
 }
