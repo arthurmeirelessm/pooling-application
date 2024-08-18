@@ -9,12 +9,14 @@ function configureAWS() {
 }
 
 async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
+    console.log(rawFileType)
     const s3 = new AWS.S3({
         endpoint: window.config.TRANSFER_ENDPOINT,
         useAccelerateEndpoint: true
     });
 
     const uploadKey = generateUUID();
+    const finalObjectKey = `${uploadKey}.${defineMediatoS3(rawFileType)}`
     const partSize = 5 * 1024 * 1024; 
     const fileSize = fileStream.byteLength;
     const parts = new Array(Math.ceil(fileSize / partSize));
@@ -23,7 +25,7 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
     try {
         const createMulti = await s3.createMultipartUpload({
             Bucket: bucketName,
-            Key: uploadKey,
+            Key: finalObjectKey,
             ContentType: rawFileType
         }).promise();
         
@@ -38,7 +40,7 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
             const uploadPromise = s3.uploadPart({
                 Body: partStream,
                 Bucket: bucketName,
-                Key: uploadKey,
+                Key: finalObjectKey,
                 PartNumber: partNumber,
                 UploadId: uploadId
             }).promise().then(part => {
@@ -54,9 +56,11 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
 
         await Promise.all(uploadPromises);
 
+        console.log(finalObjectKey)
+
         await s3.completeMultipartUpload({
             Bucket: bucketName,
-            Key: uploadKey,
+            Key: finalObjectKey,
             MultipartUpload: { Parts: parts.filter(Boolean) }, 
             UploadId: uploadId
         }).promise();
@@ -125,4 +129,10 @@ function generateUUID() {
 document.addEventListener("DOMContentLoaded", () => {
     configureAWS();
 });
+
+
+function defineMediatoS3(mediaType) {
+    const mediaFormat = mediaType.split('/')[1];
+    return mediaFormat;
+}
 

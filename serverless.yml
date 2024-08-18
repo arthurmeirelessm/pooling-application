@@ -48,3 +48,7 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: false
+  
+  
+  consumer:
+    handler: src/backend/event_driven/consumer/handler.lambda_handler
