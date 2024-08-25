@@ -42,7 +42,7 @@ class DynamoDBUpdateStatusClient:
                 UpdateExpression=update_expression,
                 ExpressionAttributeNames=expression_attribute_names,
                 ExpressionAttributeValues=expression_attribute_values,
-                ReturnValues="UPDATED_NEW"  # Opcional: Retorna os valores atualizados
+                ReturnValues="UPDATED_NEW" 
             )
             
             print("Update Response:", update_response)

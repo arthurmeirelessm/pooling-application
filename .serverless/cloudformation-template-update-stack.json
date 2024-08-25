@@ -90,16 +90,23 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/poolingApplicationAPI/dev/1724545074281-2024-08-25T00:17:54.281Z/poolingApplicationAPI.zip"
+          "S3Key": "serverless/poolingApplicationAPI/dev/1724568477847-2024-08-25T06:47:57.847Z/poolingApplicationAPI.zip"
         },
         "Handler": "src/backend/apis/create_status/handler.lambda_handler",
         "Runtime": "python3.11",
         "FunctionName": "poolingApplicationAPI-dev-createStatus",
         "MemorySize": 1024,
         "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "IAM_ROLE_ARN": "arn:aws:iam::552516487395:role/poolingApplicationRole",
+            "LAYER_ARN": "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:7",
+            "SQS_QUEUE_ARN": "arn:aws:sqs:us-east-1:552516487395:pooling-application-queue"
+          }
+        },
         "Role": "arn:aws:iam::552516487395:role/poolingApplicationRole",
         "Layers": [
-          "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:1"
+          "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:7"
         ]
       },
       "DependsOn": [
@@ -113,40 +120,47 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/poolingApplicationAPI/dev/1724545074281-2024-08-25T00:17:54.281Z/poolingApplicationAPI.zip"
+          "S3Key": "serverless/poolingApplicationAPI/dev/1724568477847-2024-08-25T06:47:57.847Z/poolingApplicationAPI.zip"
         },
         "Handler": "src/backend/event_driven/consumer/handler.lambda_handler",
         "Runtime": "python3.11",
         "FunctionName": "poolingApplicationAPI-dev-consumer",
         "MemorySize": 1024,
-        "Timeout": 6,
+        "Timeout": 300,
+        "Environment": {
+          "Variables": {
+            "IAM_ROLE_ARN": "arn:aws:iam::552516487395:role/poolingApplicationRole",
+            "LAYER_ARN": "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:7",
+            "SQS_QUEUE_ARN": "arn:aws:sqs:us-east-1:552516487395:pooling-application-queue"
+          }
+        },
         "Role": "arn:aws:iam::552516487395:role/poolingApplicationRole",
         "Layers": [
-          "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:1"
+          "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:7"
         ]
       },
       "DependsOn": [
         "ConsumerLogGroup"
       ]
     },
-    "CreateStatusLambdaVersionthLNS1Ep9hEF5QjrvczfLF8dn6JhT4nMgVbZSqCgd6w": {
+    "CreateStatusLambdaVersionjRE5Z4kn9lkBzT0JOLR1SBlymKRS5silsW32pcP8iE": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CreateStatusLambdaFunction"
         },
-        "CodeSha256": "1moWOF1pRIBc9l6xlTfU7bK8DI7lcWWCfXTtq+srUJ0="
+        "CodeSha256": "0JhhjA7lwXqbzxnU7pwF7um5BddjW7lpAzNlAUcqaUI="
       }
     },
-    "ConsumerLambdaVersionIh0k5juvx2S66poqxTGq0JInk3EV2Ocu48P2mY6XwV8": {
+    "ConsumerLambdaVersion5zixT4nqgX4mtTgYEn4Ja1aMy3z4e1KUoIIqQyDn0SY": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ConsumerLambdaFunction"
         },
-        "CodeSha256": "1moWOF1pRIBc9l6xlTfU7bK8DI7lcWWCfXTtq+srUJ0="
+        "CodeSha256": "0JhhjA7lwXqbzxnU7pwF7um5BddjW7lpAzNlAUcqaUI="
       }
     },
     "ApiGatewayRestApi": {
@@ -267,7 +281,7 @@
         "CreateStatusLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1724545070466": {
+    "ApiGatewayDeployment1724568473278": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -331,6 +345,62 @@
         },
         "Enabled": true
       }
+    },
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "pooling-application-bucket",
+        "CorsConfiguration": {
+          "CorsRules": [
+            {
+              "AllowedHeaders": [
+                "*"
+              ],
+              "AllowedMethods": [
+                "GET",
+                "PUT",
+                "POST",
+                "DELETE",
+                "HEAD"
+              ],
+              "AllowedOrigins": [
+                "*"
+              ],
+              "ExposedHeaders": [
+                "ETag"
+              ],
+              "MaxAge": 3000
+            }
+          ]
+        },
+        "NotificationConfiguration": {
+          "QueueConfigurations": [
+            {
+              "Event": "s3:ObjectCreated:CompleteMultipartUpload",
+              "Queue": "arn:aws:sqs:us-east-1:552516487395:pooling-application-queue"
+            }
+          ]
+        }
+      }
+    },
+    "DynamoDBTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "pooling-database",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "BillingMode": "PAY_PER_REQUEST"
+      }
     }
   },
   "Outputs": {
@@ -345,7 +415,7 @@
     "CreateStatusLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CreateStatusLambdaVersionthLNS1Ep9hEF5QjrvczfLF8dn6JhT4nMgVbZSqCgd6w"
+        "Ref": "CreateStatusLambdaVersionjRE5Z4kn9lkBzT0JOLR1SBlymKRS5silsW32pcP8iE"
       },
       "Export": {
         "Name": "sls-poolingApplicationAPI-dev-CreateStatusLambdaFunctionQualifiedArn"
@@ -354,7 +424,7 @@
     "ConsumerLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ConsumerLambdaVersionIh0k5juvx2S66poqxTGq0JInk3EV2Ocu48P2mY6XwV8"
+        "Ref": "ConsumerLambdaVersion5zixT4nqgX4mtTgYEn4Ja1aMy3z4e1KUoIIqQyDn0SY"
       },
       "Export": {
         "Name": "sls-poolingApplicationAPI-dev-ConsumerLambdaFunctionQualifiedArn"

@@ -4,8 +4,8 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-offline
-  - serverless-dotenv-plugin 
-
+  - serverless-dotenv-plugin  
+  
 useDotenv: true
 
 provider:
@@ -14,8 +14,45 @@ provider:
   iam: 
     role: ${env:IAM_ROLE_ARN}
   layers:
-    - ${env:LAYER_ARN} 
+    - ${env:LAYER_ARN}
 
+resources:
+  Resources:
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: pooling-application-bucket
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              AllowedOrigins:
+                - "*"
+              ExposedHeaders:
+                - ETag
+              MaxAge: 3000
+        NotificationConfiguration:
+          QueueConfigurations:
+            - Event: "s3:ObjectCreated:CompleteMultipartUpload"
+              Queue: ${env:SQS_QUEUE_ARN}
+
+    DynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: pooling-database
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
 
 package:
   individually: false
@@ -28,7 +65,7 @@ package:
     - src/frontend/**
 
   include:
-    - src/ 
+    - src/
 
 functions:
   createStatus:
@@ -48,8 +85,8 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: false
             
-  
   consumer:
     handler: src/backend/event_driven/consumer/handler.lambda_handler
     events:
       - sqs: ${env:SQS_QUEUE_ARN}
+    timeout: 300 
