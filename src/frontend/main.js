@@ -69,7 +69,29 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
         statusDiv.className = "notification success";
         statusDiv.innerHTML = '<span class="icon">&#10003;</span><span class="message">Upload finalizado com sucesso!</span>';
         statusDiv.style.display = 'block';
-       
+        const data = {
+            "id": finalObjectKey
+        }
+        fetch(window.config.CREATE_STATUS_ENDPOINT, {
+            method: "POST", 
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data) 
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json(); 
+        })
+        .then(responseData => {
+            console.log("Resposta do servidor:", responseData);
+        })
+        .catch(error => {
+            console.error("Erro ao chamar o endpoint:", error);
+        });
+
     } catch (err) {
         const statusDiv = document.getElementById("uploadStatus");
         statusDiv.className = "notification error";

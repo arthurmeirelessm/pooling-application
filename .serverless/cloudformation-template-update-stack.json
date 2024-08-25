@@ -77,6 +77,12 @@
         "LogGroupName": "/aws/lambda/poolingApplicationAPI-dev-createStatus"
       }
     },
+    "ConsumerLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/poolingApplicationAPI-dev-consumer"
+      }
+    },
     "CreateStatusLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -84,7 +90,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/poolingApplicationAPI/dev/1723926250254-2024-08-17T20:24:10.254Z/poolingApplicationAPI.zip"
+          "S3Key": "serverless/poolingApplicationAPI/dev/1724545074281-2024-08-25T00:17:54.281Z/poolingApplicationAPI.zip"
         },
         "Handler": "src/backend/apis/create_status/handler.lambda_handler",
         "Runtime": "python3.11",
@@ -93,21 +99,54 @@
         "Timeout": 6,
         "Role": "arn:aws:iam::552516487395:role/poolingApplicationRole",
         "Layers": [
-          "arn:aws:lambda:us-east-1:552516487395:layer:llm-costapi-layer:1"
+          "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:1"
         ]
       },
       "DependsOn": [
         "CreateStatusLogGroup"
       ]
     },
-    "CreateStatusLambdaVersionCrqxOWPCcm6qqc9wi68wcVVEXznFMeQWZLYF6J9U": {
+    "ConsumerLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/poolingApplicationAPI/dev/1724545074281-2024-08-25T00:17:54.281Z/poolingApplicationAPI.zip"
+        },
+        "Handler": "src/backend/event_driven/consumer/handler.lambda_handler",
+        "Runtime": "python3.11",
+        "FunctionName": "poolingApplicationAPI-dev-consumer",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Role": "arn:aws:iam::552516487395:role/poolingApplicationRole",
+        "Layers": [
+          "arn:aws:lambda:us-east-1:552516487395:layer:pooling-application-layer:1"
+        ]
+      },
+      "DependsOn": [
+        "ConsumerLogGroup"
+      ]
+    },
+    "CreateStatusLambdaVersionthLNS1Ep9hEF5QjrvczfLF8dn6JhT4nMgVbZSqCgd6w": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CreateStatusLambdaFunction"
         },
-        "CodeSha256": "N/l7jNeW69TebIrBFctHCc8uHKrVhQfpFejeY9oqtS4="
+        "CodeSha256": "1moWOF1pRIBc9l6xlTfU7bK8DI7lcWWCfXTtq+srUJ0="
+      }
+    },
+    "ConsumerLambdaVersionIh0k5juvx2S66poqxTGq0JInk3EV2Ocu48P2mY6XwV8": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ConsumerLambdaFunction"
+        },
+        "CodeSha256": "1moWOF1pRIBc9l6xlTfU7bK8DI7lcWWCfXTtq+srUJ0="
       }
     },
     "ApiGatewayRestApi": {
@@ -228,7 +267,7 @@
         "CreateStatusLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1723926246684": {
+    "ApiGatewayDeployment1724545070466": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -277,6 +316,21 @@
           ]
         }
       }
+    },
+    "ConsumerEventSourceMappingSQSPoolingapplicationqueue": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "DependsOn": [],
+      "Properties": {
+        "BatchSize": 10,
+        "EventSourceArn": "arn:aws:sqs:us-east-1:552516487395:pooling-application-queue",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ConsumerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Enabled": true
+      }
     }
   },
   "Outputs": {
@@ -291,10 +345,19 @@
     "CreateStatusLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CreateStatusLambdaVersionCrqxOWPCcm6qqc9wi68wcVVEXznFMeQWZLYF6J9U"
+        "Ref": "CreateStatusLambdaVersionthLNS1Ep9hEF5QjrvczfLF8dn6JhT4nMgVbZSqCgd6w"
       },
       "Export": {
         "Name": "sls-poolingApplicationAPI-dev-CreateStatusLambdaFunctionQualifiedArn"
+      }
+    },
+    "ConsumerLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "ConsumerLambdaVersionIh0k5juvx2S66poqxTGq0JInk3EV2Ocu48P2mY6XwV8"
+      },
+      "Export": {
+        "Name": "sls-poolingApplicationAPI-dev-ConsumerLambdaFunctionQualifiedArn"
       }
     },
     "ServiceEndpoint": {

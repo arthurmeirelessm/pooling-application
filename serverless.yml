@@ -4,7 +4,7 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-offline
-  - serverless-dotenv-plugin
+  - serverless-dotenv-plugin 
 
 useDotenv: true
 
@@ -27,9 +27,8 @@ package:
     - env/**
     - src/frontend/**
 
-
   include:
-    - src/
+    - src/ 
 
 functions:
   createStatus:
@@ -48,7 +47,9 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: false
-  
+            
   
   consumer:
     handler: src/backend/event_driven/consumer/handler.lambda_handler
+    events:
+      - sqs: ${env:SQS_QUEUE_ARN}

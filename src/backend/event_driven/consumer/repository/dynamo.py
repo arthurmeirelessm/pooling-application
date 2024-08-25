@@ -1,34 +1,51 @@
-import boto3
-import os
-import uuid
-import json
-import datetime
-from decimal import Decimal
-from typing import Dict, Any
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
+from typing import Dict, Any
+from src.backend.clients.secrets_manager_client import SecretsManagerClient
+import boto3
+import os
+import json
 
 
-class DynamoDBConsumerClient:
+
+class DynamoDBUpdateStatusClient:
     load_dotenv()
 
     def __init__(self):
         self.dynamodb = boto3.client("dynamodb")
-        self.table = os.getenv(("DYNAMO_DB_TABLE"))
+        self.secretsmanager = SecretsManagerClient()
 
-    def save_requested_data(
-        self, id: int
+    def update_requested_data(
+        self, id: int, result: str
     ) -> Any:
-        print(id)
         try:
-            item = {
-                "id": {"S": id},
-                "status": {"S":"completed"},
-                "result": {"S": "DGSDSFDFFSFSFSD"},
+            key = {
+                "id": {"S": str(id)} 
+            }
+            
+            update_expression = "SET #status = :status, #result = :result"
+            expression_attribute_names = {
+                "#status": "status",
+                "#result": "result"
+            }
+            expression_attribute_values = {
+                ":status": {"S": "completed"},
+                ":result": {"S": result}
             }
 
-            put_requested = self.dynamodb.put_item(TableName=self.table, Item=item)
-            return put_requested
-        except Exception as e:
-            return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
-        
+            initiate_SM_client = self.secretsmanager.initiate_secrets_manager()
+            dynamo_database = initiate_SM_client.get("DYNAMO-DB-TABLE")
+            
+            update_response = self.dynamodb.update_item(
+                TableName=dynamo_database,
+                Key=key,
+                UpdateExpression=update_expression,
+                ExpressionAttributeNames=expression_attribute_names,
+                ExpressionAttributeValues=expression_attribute_values,
+                ReturnValues="UPDATED_NEW"  # Opcional: Retorna os valores atualizados
+            )
+            
+            print("Update Response:", update_response)
+            return update_response
+        except ClientError as e:
+            print(f"Ocorreu um erro ao acessar o DynamoDB: {e.response['Error']['Message']}")

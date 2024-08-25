@@ -25,7 +25,7 @@ class ConsumerController:
                     {
                         "message": send_service,
                     }
-                ),
+                )
             }        
             
             

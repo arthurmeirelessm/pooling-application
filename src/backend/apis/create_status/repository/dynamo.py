@@ -27,9 +27,12 @@ class DynamoDBCreateStatusClient:
                 "result": {"S": ""},
             }
             initiate_SM_client = self.secretsmanager.initiate_secrets_manager()
+            print(initiate_SM_client)
             dynamo_database = initiate_SM_client.get("DYNAMO-DB-TABLE")
             put_requested = self.dynamodb.put_item(TableName=dynamo_database, Item=item)
+            print(put_requested)
             return put_requested
-        except Exception as e:
-            return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+        except ClientError as e:
+            print(f"Ocorreu um erro ao acessar o DynamoDB: {e.response['Error']['Message']}")
+
         

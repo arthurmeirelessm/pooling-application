@@ -2,11 +2,13 @@ import json
 import time
 from src.backend.clients.amazon_transcribe_client import TranscribeClient
 from src.backend.clients.openai_client import GPT4ChatClient
+from src.backend.event_driven.consumer.repository.dynamo import DynamoDBUpdateStatusClient
 
 class ConsumerService:
     def __init__(self):
         self.transcribe = TranscribeClient()
         self.gpt = GPT4ChatClient() 
+        self.dynamo = DynamoDBUpdateStatusClient()
     
     def consumer(self, bucket: str, object: str):
         split_media_format = self.formatMedia(object)
@@ -17,7 +19,9 @@ class ConsumerService:
                 print("Transcription job completed.")
                 transcript = self.transcribe.get_transcription_result(object)
                 print("Transcription Result:", transcript)
-                break
+                generate_response = self.gpt.generate_content(transcript)
+                self.dynamo.update_requested_data(object, generate_response)
+                return generate_response
             elif status == "FAILED":
                 print("Transcription job failed.")
                 break
@@ -28,4 +32,5 @@ class ConsumerService:
     def formatMedia(self, object = str):
       split = object.split(".")[1]
       return split
-
+  
+     
