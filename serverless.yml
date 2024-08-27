@@ -84,6 +84,23 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: false
+  
+  getResultPooling:
+    handler: src/backend/apis/get_pooling_result/handler.lambda_handler
+    events:
+      - http:
+          path: /getpoolingresult/{id}
+          method: get
+          cors:
+            origin: '*' 
+            headers: 
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
             
   consumer:
     handler: src/backend/event_driven/consumer/handler.lambda_handler

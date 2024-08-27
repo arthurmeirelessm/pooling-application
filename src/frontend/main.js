@@ -69,28 +69,39 @@ async function uploadToS3Bucket(fileStream, bucketName, rawFileType) {
         statusDiv.className = "notification success";
         statusDiv.innerHTML = '<span class="icon">&#10003;</span><span class="message">Upload finalizado com sucesso!</span>';
         statusDiv.style.display = 'block';
+
+        setTimeout(2000)
+
+        document.getElementById('loading').style.display = "block";       
+
         const data = {
             "id": finalObjectKey
         }
-        fetch(window.config.CREATE_STATUS_ENDPOINT, {
-            method: "POST", 
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data) 
-        })
-        .then(response => {
+        try {
+            const response = await fetch(window.config.CREATE_STATUS_ENDPOINT, {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data) 
+            });
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            return response.json(); 
-        })
-        .then(responseData => {
+            const responseData = await response.json();
             console.log("Resposta do servidor:", responseData);
-        })
-        .catch(error => {
+
+            const result = await checkUploadStatus(finalObjectKey);
+
+            const resultDiv = document.getElementById("uploadResult");
+            resultDiv.className = "notification success";
+            resultDiv.innerHTML = `<span class="icon">&#10003;</span><span class="message">${result}</span>`;
+            resultDiv.style.display = 'block';
+
+        } catch (error) {
             console.error("Erro ao chamar o endpoint:", error);
-        });
+        }
 
     } catch (err) {
         const statusDiv = document.getElementById("uploadStatus");
@@ -108,15 +119,51 @@ async function uploadMedia() {
         if (!fileInput.files[0]) {
             throw new Error("Nenhum arquivo selecionado.");
         }
-        
-        const rawFileType = fileInput.files[0].type
+
+        const rawFileType = fileInput.files[0].type;
         const fileStream = await getFile(fileInput.files[0]);
         const bucketName = 'pooling-application-bucket';
 
         await uploadToS3Bucket(fileStream, bucketName, rawFileType);
+
+        document.getElementById('loading').style.display = "none";
+
+
     } catch (err) {
         console.error("Erro no upload:", err);
-        document.getElementById("uploadStatus").textContent = "Erro no upload.";
+
+        document.getElementById('loading').style.display = "none";
+
+        document.getElementById("uploadStatus").textContent = "Erro no upload: " + err.message;
+        document.getElementById("uploadStatus").style.display = "block";
+        document.getElementById("uploadStatus").classList.add('error');
+    }
+}
+
+
+async function checkUploadStatus(uploadId) {
+    while (true) {
+        try {
+            const response = await fetch(`${window.config.GET_POOLING_RESULT_ENDPOINT}id=?${uploadId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const responseData = await response.json();
+            console.log("Resposta do servidor:", responseData);
+
+            if (responseData.message.status === "completed") {
+               return responseData.message.result
+            } else if (responseData.message.status === "pending") {
+                console.log("Status ainda pendente. Verificando novamente em 30 segundos...");
+                await new Promise(resolve => setTimeout(resolve, 10000)); 
+            } else {
+                console.error("Status desconhecido:", responseData.message.status);
+                break;
+            }
+        } catch (error) {
+            console.error("Erro ao verificar o status:", error);
+            await new Promise(resolve => setTimeout(resolve, 10000)); 
+        }
     }
 }
 

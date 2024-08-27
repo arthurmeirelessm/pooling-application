@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #070707 0%, #f1c4fa 100%);
+            background: linear-gradient(135deg, #070707 0%, #000000 100%);
             font-family: 'Roboto', sans-serif;
         }
 
@@ -65,6 +65,23 @@
             transition: background-color 0.3s ease;
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loader {
+            border: 8px solid #f3f3f3; /* Cor do contorno */
+            border-top: 8px solid #3498db; /* Cor da parte que roda */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto; /* Centraliza o loader */
+            display: none; /* Esconde por padrão */
+        }
+
+
         button:hover {
             background-color: #ff8b7f;
         }
@@ -76,38 +93,43 @@
             font-weight: bold;
         }
 
-    .notification {
-        display: none;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 20px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #fff;
-        text-align: center;
-        max-width: 100%;
-        position: relative;
-    }
+        .notification {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            text-align: left;
+            max-width: 100%;
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #000000; /* Fundo preto */
+        }
 
-    .notification.success {
-        background-color: #28a745;
-    }
+        .notification.success {
+            background-color: #28a745;
+            padding: 10px 15px; /* Ajustando o padding para proporcionalidade */
+        }
+        
+        .notification.error {
+            background-color: #dc3545;
+        }
 
-    .notification.error {
-        background-color: #dc3545;
-    }
+        .notification .icon {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            font-size: 20px;
+        }
 
-    .notification .icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 20px;
-    }
-
-    .notification .message {
-        margin-left: 40px;
-    }
+        .notification .message {
+            margin-left: 40px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 
@@ -116,7 +138,9 @@
         <h2>Upload de Arquivo</h2>
         <input type="file" id="fileToUpload" />
         <button onclick="uploadMedia()">Upload</button>
+        <div id="loading" class="loader"></div>
         <div id="uploadStatus" class="notification"></div>
+        <div id="uploadResult" class="notification"></div>
     </div>
     <script src="config.js"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1672.0.min.js"></script>

@@ -19,7 +19,7 @@ class GPT4ChatClient:
             chat_completion = self.client.chat.completions.create(
                 messages=[
                 {
-                    "role": "system", "content": "Crie 10 perguntas com suas respectivas respostas usando como base o conteúdo do user"
+                    "role": "system", "content": "Crie um resumo bem detalhado do conteúdo do user"
                 },
                 {
                     "role": "user", "content": content_trancribed
